@@ -39,6 +39,7 @@ telepath = "^0.3"
 urllib3 = "^1.26.14"
 webencodings = "^0.5.1"
 willow = "^1.4.1"
+dj-database-url = "^1.2.0"
 
 
 [build-system]

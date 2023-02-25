@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 from dotenv import load_dotenv
-
+import dj_database_url
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
@@ -94,7 +94,11 @@ if (ENVIRONMENT == "local"):
             "NAME": "rlp_db",
         }
     }
-
+else:
+    DATABASE_URL = os.getenv("DATABASE_URL")
+    DATABASES = {
+        "default": dj_database_url.config(default=DATABASE_URL, conn_max_age=1800),
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
