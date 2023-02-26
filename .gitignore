@@ -28,3 +28,4 @@ uploads/*
 /dist_electron
 
 var/
+media/

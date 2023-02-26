@@ -28,8 +28,9 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # Application definition
 
 INSTALLED_APPS = [
-    "home",
-    "search",
+    "apps.base",
+    "apps.home",
+    "apps.search",
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
     "wagtail.embeds",
@@ -160,6 +161,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # Wagtail settings
 
 WAGTAIL_SITE_NAME = "rlp_www_api"
+WAGTAILIMAGES_IMAGE_MODEL = "base.AccessibleImage"
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # Search
 # https://docs.wagtail.org/en/stable/topics/search/backends.html
