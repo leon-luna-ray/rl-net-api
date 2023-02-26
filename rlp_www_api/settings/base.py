@@ -30,6 +30,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 INSTALLED_APPS = [
     "apps.base",
     "apps.home",
+    "apps.gallery",
     "apps.search",
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
