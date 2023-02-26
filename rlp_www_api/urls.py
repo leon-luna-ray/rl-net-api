@@ -7,8 +7,10 @@ from wagtail import urls as wagtail_urls
 from wagtail.documents import urls as wagtaildocs_urls
 
 from apps.search import views as search_views
+from .api import api_router
 
 urlpatterns = [
+    path('api/v2/', api_router.urls),
     path("django-admin/", admin.site.urls),
     path("admin/", include(wagtailadmin_urls)),
     path("documents/", include(wagtaildocs_urls)),
