@@ -34,6 +34,10 @@ class GalleryPage(BasePage):
         related_name='+',
     )
 
+    @property
+    def images(self):
+        return self.collection.id
+
     content_panels = BasePage.content_panels + [
         FieldPanel('intro'),
         FieldPanel('location'),
@@ -43,6 +47,7 @@ class GalleryPage(BasePage):
         APIField('intro'),
         APIField('location'),
         APIField('collection'),
+        APIField('images'),
     ]
 
     subpage_types = []

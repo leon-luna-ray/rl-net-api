@@ -4,7 +4,7 @@ from wagtail.api import APIField
 from wagtail.fields import RichTextField, StreamField
 from wagtail.admin.panels import FieldPanel
 
-from apps.base.serializers import ImageSerializerField
+from apps.base.serializers import ImageSerializer
 from apps.base.models.pages import BasePage
 from apps.base.models.blocks.content import HomePageContentBlock
 
@@ -40,7 +40,7 @@ class HomePage(BasePage):
     api_fields = [
         APIField('subtitle'),
         APIField('intro'),
-        APIField('hero_image', serializer=ImageSerializerField()),
+        APIField('hero_image', serializer=ImageSerializer()),
         APIField('page_content'),
     ]
 
