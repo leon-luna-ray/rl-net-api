@@ -9,7 +9,7 @@ from apps.base.models.pages import BasePage
 
 
 class GalleryLandingPage(BasePage):
-
+    """Page model for saving gallery pages"""
     max_count = 1
     subpage_types = ['gallery.GalleryPage']
 
