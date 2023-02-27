@@ -2,7 +2,7 @@ from django.conf import settings
 from rest_framework.fields import Field
 
 from wagtail.images.blocks import ImageChooserBlock
-# from wagtail.blocks import PageChooserBlock
+from wagtail.blocks import PageChooserBlock
 
 MEDIA_URL = '' if settings.S3_ENABLED else settings.WAGTAILADMIN_BASE_URL
 
@@ -21,19 +21,14 @@ def _serializeImage(value):
     }
 
 
-# def _serializeProject(value):
-#     return {
-#         "title": value.title,
-#         "description": value.description,
-#         "id": value.id,
-#         "path": value.get_url(),
-#         "original_image": f'{MEDIA_URL}{value.main_image.file.url}',
-#         "medium_image": f'{MEDIA_URL}{value.main_image.get_rendition("width-800").url}',
-#         "project_url": value.project_url,
-#         "repository_url": value.repository_url,
-#         "slug": value.slug,
-#         "thumbnail": f'{MEDIA_URL}{value.main_image.get_rendition("fill-400x400").url}',
-#     }
+def _serializePage(value):
+    return {
+        "title": value.title,
+        "id": value.id,
+        "slug": value.slug,
+        "path": value.get_url(),
+    }
+
 
 # Fields
 
@@ -43,6 +38,11 @@ class ImageSerializerField(Field):
         if value:
             return _serializeImage(value)
 
+
+class PageSerializerField(Field):
+    def to_representation(self, value):
+        if value:
+            return _serializePage(value)
 # Blocks
 
 
@@ -52,7 +52,7 @@ class ApiImageChooserBlock(ImageChooserBlock):
             return _serializeImage(value)
 
 
-# class ApiProjectChooserBlock(PageChooserBlock):
-#     def get_api_representation(self, value, context=None):
-#         if value:
-#             return _serializeProject(value)
+class ApiPageChooserBlock(PageChooserBlock):
+    def get_api_representation(self, value, context=None):
+        if value:
+            return _serializePage(value)
