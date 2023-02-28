@@ -93,9 +93,9 @@ class ImageSerializer(serializers.ModelSerializer):
             if(obj.height == obj.width):
                 orientation = 'square'
             elif(obj.height > obj.width):
-                orientation = 'vertical'
+                orientation = 'portrait'
             else:
-                orientation = 'horizontal'
+                orientation = 'landscape'
 
             return orientation
         except Exception:
