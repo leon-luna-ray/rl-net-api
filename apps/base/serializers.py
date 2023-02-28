@@ -1,9 +1,12 @@
+import json
 from django.conf import settings
 from rest_framework import serializers
 from rest_framework.fields import Field
 from wagtail.images.models import Image
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.blocks import PageChooserBlock
+from PIL import Image as PILImage, TiffImagePlugin
+from PIL.ExifTags import TAGS
 
 MEDIA_URL = '' if settings.S3_ENABLED else settings.WAGTAILADMIN_BASE_URL
 
@@ -17,6 +20,26 @@ class ImageSerializer(serializers.ModelSerializer):
     medium = serializers.SerializerMethodField('get_medium')
     thumbnail = serializers.SerializerMethodField('get_thumbnail')
     large = serializers.SerializerMethodField('get_large')
+    metadata = serializers.SerializerMethodField('get_exif')
+
+    def get_exif(self, obj):
+        try:
+            img = PILImage.open(obj.file)
+            dct = {}
+            for k, v in img._getexif().items():
+                if k in TAGS:
+                    if isinstance(v, TiffImagePlugin.IFDRational):
+                        v = float(v)
+                    elif isinstance(v, tuple):
+                        v = tuple(float(t) if isinstance(t, TiffImagePlugin.IFDRational) else t for t in v)
+                    elif isinstance(v, bytes):
+                        v = v.decode(errors="replace")
+                    dct[TAGS[k]] = v
+            outs = json.dumps(dct)
+
+            return outs
+        except Exception:
+            return ''
 
     def get_alt_text(self, obj):
         try:
@@ -83,6 +106,7 @@ class ImageSerializer(serializers.ModelSerializer):
             # "tags",
             'thumbnail',
             'width',
+            "metadata"
         )
 
 

@@ -1,7 +1,6 @@
 from django.db import models
 from wagtail.images.models import Image, AbstractImage, AbstractRendition
 
-
 class AccessibleImage(AbstractImage):
     """
     Adds extra fields to wagtail image model.
@@ -25,6 +24,7 @@ class AccessibleRendition(AbstractRendition):
         AccessibleImage,
         on_delete=models.CASCADE,
         related_name='renditions')
+
 
     class Meta:
         unique_together = (
