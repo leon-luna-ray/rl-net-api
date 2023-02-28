@@ -15,8 +15,10 @@ class ImageSerializer(serializers.ModelSerializer):
     exif_data = serializers.SerializerMethodField('get_exif_data')
     large = serializers.SerializerMethodField('get_large_rendition')
     medium = serializers.SerializerMethodField('get_medium_rendition')
+    orientation = serializers.SerializerMethodField('get_orientation')
     original = serializers.SerializerMethodField('get_original_image')
     thumbnail = serializers.SerializerMethodField('get_thumbnail_rendition')
+
 
     def get_exif_data(self, obj):
         try:
@@ -35,6 +37,7 @@ class ImageSerializer(serializers.ModelSerializer):
             outs = json.dumps(dct)
             exif_data = json.loads(outs)
 
+            # Todo, futher filter and return only necesary exif data
             return exif_data
 
         except Exception:
@@ -83,6 +86,21 @@ class ImageSerializer(serializers.ModelSerializer):
         except Exception:
             return ''
 
+    def get_orientation(self, obj):
+        try:
+            orientation = ''
+            # Todo find a cleaner way of doing this?
+            if(obj.height == obj.width):
+                orientation = 'square'
+            elif(obj.height > obj.width):
+                orientation = 'vertical'
+            else:
+                orientation = 'horizontal'
+
+            return orientation
+        except Exception:
+            return ''
+
     class Meta:
         model = Image
         fields = (
@@ -102,6 +120,7 @@ class ImageSerializer(serializers.ModelSerializer):
             'id',
             'large',
             'medium',
+            'orientation',
             'original',
             # "tags",
             'thumbnail',
