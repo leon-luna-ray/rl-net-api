@@ -1,16 +1,12 @@
 import json
 from django.conf import settings
 from rest_framework import serializers
-from rest_framework.fields import Field
 from wagtail.images.models import Image
 from wagtail.images.blocks import ImageChooserBlock
-from wagtail.blocks import PageChooserBlock
 from PIL import Image as PILImage, TiffImagePlugin
 from PIL.ExifTags import TAGS
 
 MEDIA_URL = '' if settings.S3_ENABLED else settings.WAGTAILADMIN_BASE_URL
-
-# Serializers
 
 
 class ImageSerializer(serializers.ModelSerializer):
@@ -112,33 +108,8 @@ class ImageSerializer(serializers.ModelSerializer):
             'width',
         )
 
-
-def _serializePage(value):
-    return {
-        "title": value.title,
-        "id": value.id,
-        "slug": value.slug,
-        "path": value.get_url(),
-    }
-
-
-# Fields
-
-
-class PageSerializerField(Field):
-    def to_representation(self, value):
-        if value:
-            return _serializePage(value)
-# Blocks
-
-
 class ApiImageChooserBlock(ImageChooserBlock):
     def get_api_representation(self, value, context=None):
         if value and value is not None:
             return ImageSerializer(value, context=context).to_representation(value)
 
-
-class ApiPageChooserBlock(PageChooserBlock):
-    def get_api_representation(self, value, context=None):
-        if value:
-            return _serializePage(value)

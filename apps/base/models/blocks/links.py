@@ -5,7 +5,7 @@ from wagtail.core.blocks import (
     URLBlock,
 )
 
-from apps.base.serializers import ApiPageChooserBlock
+from .api import ApiPageChooserBlock
 
 
 class LinkWithTitleBlock(StructBlock):
