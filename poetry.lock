@@ -197,21 +197,6 @@ files = [
 ]
 
 [[package]]
-name = "choicesenum"
-version = "0.7.0"
-description = "Python's Enum with extra powers to play nice with labels and choices fields"
-category = "main"
-optional = false
-python-versions = "*"
-files = [
-    {file = "choicesenum-0.7.0-py2.py3-none-any.whl", hash = "sha256:8b8c1f8a374f537441303992009907234c36a587d3a93d248c878c2f104a2b7d"},
-    {file = "choicesenum-0.7.0.tar.gz", hash = "sha256:37d53174a66405ff178ac44396be9f3a71fe8f5b43d3a5a6ebfaa9593543d36a"},
-]
-
-[package.dependencies]
-six = "*"
-
-[[package]]
 name = "dj-database-url"
 version = "1.2.0"
 description = "Use Database URLs in your Django Application."
@@ -261,24 +246,6 @@ files = [
 
 [package.dependencies]
 Django = ">=3.2"
-
-[[package]]
-name = "django-exiffield"
-version = "3.0.0"
-description = "django-exiffield extracts exif information by utilizing the exiftool."
-category = "main"
-optional = false
-python-versions = ">=3.6.1,<4.0"
-files = [
-    {file = "django-exiffield-3.0.0.tar.gz", hash = "sha256:969c1c081e5a12004332e0f31da969914edcf543a54ee5588546a0296b02e9bb"},
-    {file = "django_exiffield-3.0.0-py3-none-any.whl", hash = "sha256:781da79d2dbc94670dfe848bbd232e9840b8cf74a8af1a3d025be00cfcb52cb6"},
-]
-
-[package.dependencies]
-choicesenum = ">=0.2.2"
-django = ">=2.2"
-jsonfield = ">=3.0"
-pillow = ">=5.0"
 
 [[package]]
 name = "django-filter"
@@ -496,21 +463,6 @@ files = [
     {file = "jmespath-1.0.1-py3-none-any.whl", hash = "sha256:02e2e4cc71b5bcab88332eebf907519190dd9e6e82107fa7f83b1003a6252980"},
     {file = "jmespath-1.0.1.tar.gz", hash = "sha256:90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe"},
 ]
-
-[[package]]
-name = "jsonfield"
-version = "3.1.0"
-description = "A reusable Django field that allows you to store validated JSON in your model."
-category = "main"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "jsonfield-3.1.0-py3-none-any.whl", hash = "sha256:df857811587f252b97bafba42e02805e70a398a7a47870bc6358a0308dd689ed"},
-    {file = "jsonfield-3.1.0.tar.gz", hash = "sha256:7e4e84597de21eeaeeaaa7cc5da08c61c48a9b64d0c446b2d71255d01812887a"},
-]
-
-[package.dependencies]
-Django = ">=2.2"
 
 [[package]]
 name = "l18n"
@@ -916,4 +868,4 @@ testing = ["Pillow (>=6.0.0,<10.0.0)", "Wand (>=0.6,<1.0)", "mock (>=3.0,<4.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "e697be64b482dbae7bd848f4f2b1a1545c865c6dd14e93ea7c57282313760daa"
+content-hash = "88a0d828fba6bdfefa75a73d3bb79d5e576312aa7985f62597b85eee18cdba2c"
