@@ -16,13 +16,13 @@ MEDIA_URL = '' if settings.S3_ENABLED else settings.WAGTAILADMIN_BASE_URL
 class ImageSerializer(serializers.ModelSerializer):
     alt_text = serializers.SerializerMethodField('get_alt_text')
     caption = serializers.SerializerMethodField('get_caption')
-    original = serializers.SerializerMethodField('get_original')
-    medium = serializers.SerializerMethodField('get_medium')
-    thumbnail = serializers.SerializerMethodField('get_thumbnail')
-    large = serializers.SerializerMethodField('get_large')
-    metadata = serializers.SerializerMethodField('get_exif')
+    exif_data = serializers.SerializerMethodField('get_exif_data')
+    large = serializers.SerializerMethodField('get_large_rendition')
+    medium = serializers.SerializerMethodField('get_medium_rendition')
+    original = serializers.SerializerMethodField('get_original_image')
+    thumbnail = serializers.SerializerMethodField('get_thumbnail_rendition')
 
-    def get_exif(self, obj):
+    def get_exif_data(self, obj):
         try:
             img = PILImage.open(obj.file)
             dct = {}
@@ -31,15 +31,18 @@ class ImageSerializer(serializers.ModelSerializer):
                     if isinstance(v, TiffImagePlugin.IFDRational):
                         v = float(v)
                     elif isinstance(v, tuple):
-                        v = tuple(float(t) if isinstance(t, TiffImagePlugin.IFDRational) else t for t in v)
+                        v = tuple(float(t) if isinstance(
+                            t, TiffImagePlugin.IFDRational) else t for t in v)
                     elif isinstance(v, bytes):
                         v = v.decode(errors="replace")
                     dct[TAGS[k]] = v
             outs = json.dumps(dct)
+            exif_data = json.loads(outs)
 
-            return outs
+            return exif_data
+
         except Exception:
-            return ''
+            return None
 
     def get_alt_text(self, obj):
         try:
@@ -53,13 +56,13 @@ class ImageSerializer(serializers.ModelSerializer):
         except Exception:
             return ''
 
-    def get_original(self, obj):
+    def get_original_image(self, obj):
         try:
             return f'{MEDIA_URL}{obj.file.url}'
         except Exception:
             return ''
 
-    def get_medium(self, obj):
+    def get_medium_rendition(self, obj):
         try:
             rendition = f'{MEDIA_URL}{obj.get_rendition("width-800").url}'
 
@@ -67,7 +70,7 @@ class ImageSerializer(serializers.ModelSerializer):
         except Exception:
             return ''
 
-    def get_large(self, obj):
+    def get_large_rendition(self, obj):
         # Todo try adding error handling to ensure the larger side is the basis (for vertical images)
         try:
             rendition = f'{MEDIA_URL}{obj.get_rendition("width-1200").url}'
@@ -76,7 +79,7 @@ class ImageSerializer(serializers.ModelSerializer):
         except Exception:
             return ''
 
-    def get_thumbnail(self, obj):
+    def get_thumbnail_rendition(self, obj):
         try:
             rendition = f'{MEDIA_URL}{obj.get_rendition("fill-400x400").url}'
 
@@ -91,6 +94,7 @@ class ImageSerializer(serializers.ModelSerializer):
             'alt_text',
             'caption',
             "collection",
+            "exif_data",
             'file',
             'filename',
             'file_size',
@@ -106,7 +110,6 @@ class ImageSerializer(serializers.ModelSerializer):
             # "tags",
             'thumbnail',
             'width',
-            "metadata"
         )
 
 
