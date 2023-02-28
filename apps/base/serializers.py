@@ -16,6 +16,7 @@ class ImageSerializer(serializers.ModelSerializer):
     original = serializers.SerializerMethodField('get_original')
     medium = serializers.SerializerMethodField('get_medium')
     thumbnail = serializers.SerializerMethodField('get_thumbnail')
+    large = serializers.SerializerMethodField('get_large')
 
     def get_alt_text(self, obj):
         try:
@@ -38,6 +39,15 @@ class ImageSerializer(serializers.ModelSerializer):
     def get_medium(self, obj):
         try:
             rendition = f'{MEDIA_URL}{obj.get_rendition("width-800").url}'
+
+            return rendition
+        except Exception:
+            return ''
+
+    def get_large(self, obj):
+        # Todo try adding error handling to ensure the larger side is the basis (for vertical images)
+        try:
+            rendition = f'{MEDIA_URL}{obj.get_rendition("width-1200").url}'
 
             return rendition
         except Exception:
@@ -67,6 +77,7 @@ class ImageSerializer(serializers.ModelSerializer):
             "focal_point_height",
             'height',
             'id',
+            'large',
             'medium',
             'original',
             # "tags",
