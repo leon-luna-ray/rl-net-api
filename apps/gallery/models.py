@@ -32,7 +32,7 @@ class GalleryPage(BasePage):
     ],
         null=True,
         blank=False,
-        # use_json_field=True,
+        use_json_field=True,
     )
 
     content_panels = BasePage.content_panels + [
