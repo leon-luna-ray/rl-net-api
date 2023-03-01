@@ -45,4 +45,4 @@ class HomePage(BasePage):
     ]
 
     max_count = 1
-    subpage_types = ['gallery.GalleryLandingPage']
+    subpage_types = ['gallery.CollectionsLandingPage']

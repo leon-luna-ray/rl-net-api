@@ -9,8 +9,8 @@ from apps.base.serializers import ApiImageChooserBlock
 from apps.base.models.pages import BasePage
 
 
-class GalleryLandingPage(BasePage):
-    """Page model for saving gallery pages"""
+class CollectionsLandingPage(BasePage):
+    """Page model for saving gallery collection pages"""
     max_count = 1
     subpage_types = ['gallery.GalleryPage']
 
