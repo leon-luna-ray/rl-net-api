@@ -12,36 +12,35 @@ MEDIA_URL = '' if settings.S3_ENABLED else settings.WAGTAILADMIN_BASE_URL
 class ImageSerializer(serializers.ModelSerializer):
     alt_text = serializers.SerializerMethodField('get_alt_text')
     caption = serializers.SerializerMethodField('get_caption')
-    exif_data = serializers.SerializerMethodField('get_exif_data')
+    # exif_data = serializers.SerializerMethodField('get_exif_data')
     large = serializers.SerializerMethodField('get_large_rendition')
     medium = serializers.SerializerMethodField('get_medium_rendition')
     orientation = serializers.SerializerMethodField('get_orientation')
     original = serializers.SerializerMethodField('get_original_image')
     thumbnail = serializers.SerializerMethodField('get_thumbnail_rendition')
 
+    # def get_exif_data(self, obj):
+    #     try:
+    #         img = PILImage.open(obj.file)
+    #         dct = {}
+    #         for k, v in img._getexif().items():
+    #             if k in TAGS:
+    #                 if isinstance(v, TiffImagePlugin.IFDRational):
+    #                     v = float(v)
+    #                 elif isinstance(v, tuple):
+    #                     v = tuple(float(t) if isinstance(
+    #                         t, TiffImagePlugin.IFDRational) else t for t in v)
+    #                 elif isinstance(v, bytes):
+    #                     v = v.decode(errors="replace")
+    #                 dct[TAGS[k]] = v
+    #         outs = json.dumps(dct)
+    #         exif_data = json.loads(outs)
 
-    def get_exif_data(self, obj):
-        try:
-            img = PILImage.open(obj.file)
-            dct = {}
-            for k, v in img._getexif().items():
-                if k in TAGS:
-                    if isinstance(v, TiffImagePlugin.IFDRational):
-                        v = float(v)
-                    elif isinstance(v, tuple):
-                        v = tuple(float(t) if isinstance(
-                            t, TiffImagePlugin.IFDRational) else t for t in v)
-                    elif isinstance(v, bytes):
-                        v = v.decode(errors="replace")
-                    dct[TAGS[k]] = v
-            outs = json.dumps(dct)
-            exif_data = json.loads(outs)
+    #         # Todo, futher filter and return only necesary exif data
+    #         return exif_data
 
-            # Todo, futher filter and return only necesary exif data
-            return exif_data
-
-        except Exception:
-            return None
+    #     except Exception:
+    #         return None
 
     def get_alt_text(self, obj):
         try:
@@ -89,10 +88,10 @@ class ImageSerializer(serializers.ModelSerializer):
     def get_orientation(self, obj):
         try:
             orientation = ''
-            # Todo find a cleaner way of doing this?
-            if(obj.height == obj.width):
+
+            if (obj.height == obj.width):
                 orientation = 'square'
-            elif(obj.height > obj.width):
+            elif (obj.height > obj.width):
                 orientation = 'portrait'
             else:
                 orientation = 'landscape'
@@ -108,7 +107,7 @@ class ImageSerializer(serializers.ModelSerializer):
             'alt_text',
             'caption',
             "collection",
-            "exif_data",
+            # "exif_data",
             'file',
             'filename',
             'file_size',
@@ -127,8 +126,8 @@ class ImageSerializer(serializers.ModelSerializer):
             'width',
         )
 
+
 class ApiImageChooserBlock(ImageChooserBlock):
     def get_api_representation(self, value, context=None):
         if value and value is not None:
             return ImageSerializer(value, context=context).to_representation(value)
-
