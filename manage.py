@@ -3,7 +3,7 @@ import os
 import sys
 
 if __name__ == "__main__":
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "rlp_www_api.settings.dev")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "rl_net_api.settings.dev")
 
     from django.core.management import execute_from_command_line
 
