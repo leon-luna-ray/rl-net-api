@@ -7,7 +7,7 @@ from apps.base.models.images import AccessibleImage
 
 MEDIA_URL = '' if settings.S3_ENABLED else settings.WAGTAILADMIN_BASE_URL
 
-
+# Todo refactor for performance
 class ImageSerializer(serializers.ModelSerializer):
     alt_text = serializers.SerializerMethodField('get_alt_text')
     caption = serializers.SerializerMethodField('get_caption')
@@ -17,6 +17,25 @@ class ImageSerializer(serializers.ModelSerializer):
     original = serializers.SerializerMethodField('get_original_image')
     thumbnail = serializers.SerializerMethodField('get_thumbnail_rendition')
 
+    class Meta:
+        model = AccessibleImage
+        fields = (
+            'title',
+            'alt_text',
+            'caption',
+            "collection",
+            "exif_data",
+            'filename',
+            "focal_point_x",
+            "focal_point_y",
+            "focal_point_width",
+            "focal_point_height",
+            'id',
+            'large',
+            'medium',
+            'original',
+            'thumbnail',
+        )
 
     def get_alt_text(self, obj):
         try:
@@ -32,7 +51,7 @@ class ImageSerializer(serializers.ModelSerializer):
 
     def get_exif(self, obj):
         try:
-            return obj.exif_data
+            return obj.exif_data if obj.has_exif else {}
         except Exception:
             return ''
 
@@ -66,26 +85,7 @@ class ImageSerializer(serializers.ModelSerializer):
         except Exception:
             return ''
 
-    class Meta:
-        model = AccessibleImage
-        fields = (
-            'title',
-            'alt_text',
-            'caption',
-            "collection",
-            "exif_data",
-            'filename',
-            'file_size',
-            "focal_point_x",
-            "focal_point_y",
-            "focal_point_width",
-            "focal_point_height",
-            'id',
-            'large',
-            'medium',
-            'original',
-            'thumbnail',
-        )
+
 
 
 class ApiImageChooserBlock(ImageChooserBlock):

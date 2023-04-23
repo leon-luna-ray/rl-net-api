@@ -38,6 +38,7 @@ class AccessibleImage(AbstractImage):
 
                 self.exif_data = exif_data
                 self.has_exif = True
+                self.save()
 
                 print(f'💾 EXIF Data Saved \n {exif_data}')
 
