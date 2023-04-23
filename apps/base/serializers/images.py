@@ -3,16 +3,17 @@ from rest_framework import serializers
 from wagtail.images.models import Image
 from wagtail.images.blocks import ImageChooserBlock
 
+from apps.base.models.images import AccessibleImage
+
 MEDIA_URL = '' if settings.S3_ENABLED else settings.WAGTAILADMIN_BASE_URL
 
 
 class ImageSerializer(serializers.ModelSerializer):
     alt_text = serializers.SerializerMethodField('get_alt_text')
     caption = serializers.SerializerMethodField('get_caption')
-    # exif_data = serializers.SerializerMethodField('get_exif_data')
+    exif_data = serializers.SerializerMethodField('get_exif')
     large = serializers.SerializerMethodField('get_large_rendition')
     medium = serializers.SerializerMethodField('get_medium_rendition')
-    orientation = serializers.SerializerMethodField('get_orientation')
     original = serializers.SerializerMethodField('get_original_image')
     thumbnail = serializers.SerializerMethodField('get_thumbnail_rendition')
 
@@ -26,6 +27,12 @@ class ImageSerializer(serializers.ModelSerializer):
     def get_caption(self, obj):
         try:
             return obj.caption
+        except Exception:
+            return ''
+
+    def get_exif(self, obj):
+        try:
+            return obj.exif_data
         except Exception:
             return ''
 
@@ -44,7 +51,6 @@ class ImageSerializer(serializers.ModelSerializer):
             return ''
 
     def get_large_rendition(self, obj):
-        # Todo try adding error handling to ensure the larger side is the basis (for vertical images)
         try:
             rendition = f'{MEDIA_URL}{obj.get_rendition("width-1200").url}'
 
@@ -60,45 +66,25 @@ class ImageSerializer(serializers.ModelSerializer):
         except Exception:
             return ''
 
-    def get_orientation(self, obj):
-        try:
-            orientation = ''
-
-            if (obj.height == obj.width):
-                orientation = 'square'
-            elif (obj.height > obj.width):
-                orientation = 'portrait'
-            else:
-                orientation = 'landscape'
-
-            return orientation
-        except Exception:
-            return ''
-
     class Meta:
-        model = Image
+        model = AccessibleImage
         fields = (
             'title',
             'alt_text',
             'caption',
             "collection",
-            # "exif_data",
-            'file',
+            "exif_data",
             'filename',
             'file_size',
             "focal_point_x",
             "focal_point_y",
             "focal_point_width",
             "focal_point_height",
-            'height',
             'id',
             'large',
             'medium',
-            'orientation',
             'original',
-            # "tags",
             'thumbnail',
-            'width',
         )
 
 
