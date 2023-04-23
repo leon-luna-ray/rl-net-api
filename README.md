@@ -1,6 +1,6 @@
 # rl-net-api
-
-Wagtail CMS backend application for Ray Luna Photography.
+🚧 In development 🚧
+CMS backend for rayluna.net built with Python, Django and Wagtail. This is a headless CMS application that serves data to the frontend via REST API.
 
 ## Technologies
 - Python
