@@ -48,8 +48,11 @@ USER wagtail
 # Collect static files.
 RUN python manage.py collectstatic --noinput --clear
 
-# Set the default executable for the container.
-ENTRYPOINT ["gunicorn", "rl-net-api.wsgi:application"]
+# Create a script that runs both commands
+RUN echo -e '#!/bin/sh\nset -xe\npython manage.py migrate --noinput\ngunicorn rl-net-api.wsgi:application' > /usr/local/bin/start-server
 
-# Set the default arguments to the executable.
-CMD ["--bind", "0.0.0.0:8000"]
+# Make the script executable
+RUN chmod +x /usr/local/bin/start-server
+
+# Set the CMD to use the script
+CMD ["start-server"]
