@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "rlp-www-api"
+name = "rl-net-api"
 version = "1.0"
 description = "Wagtail CMS API backend application for Ray Luna Photography"
 authors = ["Ray Luna <leon.luna.ray@gmail.com>"]
