@@ -1,1 +1,1 @@
-web: python manage.py migrate && gunicorn rlp_www_api.wsgi
+web: python manage.py migrate && gunicorn rl-net-api.wsgi
