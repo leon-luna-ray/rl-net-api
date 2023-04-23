@@ -4,7 +4,7 @@ version = "1.0"
 description = "Wagtail CMS API backend application for Ray Luna Photography"
 authors = ["Ray Luna <leon.luna.ray@gmail.com>"]
 readme = "README.md"
-packages = [{include = "rl_net_api"}]
+packages = [{include = "rl-net-api"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"

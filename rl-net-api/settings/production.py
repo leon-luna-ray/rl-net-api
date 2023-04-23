@@ -8,7 +8,7 @@ DEBUG = False
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
 CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS").split(",")
 # CORS_ORIGIN_WHITELIST = os.getenv("CORS_ORIGIN_WHITELIST").split(",")
-DEFAULT_FILE_STORAGE = "rl_net_api.settings.storage_backends.MediaStorage"
+DEFAULT_FILE_STORAGE = "rl-net-api.settings.storage_backends.MediaStorage"
 STATICFILES_STORAGE="whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 S3_ENABLED = True
