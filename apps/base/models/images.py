@@ -12,7 +12,7 @@ class AccessibleImage(AbstractImage):
     alt_text = models.TextField(blank=True)
     caption = models.TextField(blank=True)
     has_exif = models.BooleanField(blank=True, null=True)
-
+    exif_data = models.JSONField(default=dict)
     admin_form_fields = Image.admin_form_fields + (
         'alt_text',
         'caption',
@@ -20,26 +20,29 @@ class AccessibleImage(AbstractImage):
 
     def get_exif_data(self):
         try:
-            img = PILImage.open(self.file)
-            dct = {}
-            for k, v in img._getexif().items():
-                if k in TAGS:
-                    if isinstance(v, TiffImagePlugin.IFDRational):
-                        v = float(v)
-                    elif isinstance(v, tuple):
-                        v = tuple(float(t) if isinstance(
-                            t, TiffImagePlugin.IFDRational) else t for t in v)
-                    elif isinstance(v, bytes):
-                        v = v.decode(errors="replace")
-                    dct[TAGS[k]] = v
-            outs = json.dumps(dct)
-            exif_data = json.loads(outs)
+            with self.file.open('rb') as f:
+                img = PILImage.open(f)
+                dct = {}
+                for k, v in img._getexif().items():
+                    if k in TAGS:
+                        if isinstance(v, TiffImagePlugin.IFDRational):
+                            v = float(v)
+                        elif isinstance(v, tuple):
+                            v = tuple(float(t) if isinstance(
+                                t, TiffImagePlugin.IFDRational) else t for t in v)
+                        elif isinstance(v, bytes):
+                            v = v.decode(errors="replace")
+                        dct[TAGS[k]] = v
+                outs = json.dumps(dct)
+                exif_data = json.loads(outs)
 
-            # Todo, futher filter and return only necesary exif data
-            return exif_data
+                self.exif_data = exif_data
+                self.has_exif = True
 
-        except Exception:
-            return None
+                print(f'💾 EXIF Data Saved \n {exif_data}')
+
+        except IOError as e:
+            print("Failed to open image: %s" % e)
 
     def save(self, *args, **kwargs):
         # Call the save() method of the parent class to save the image object
@@ -47,17 +50,7 @@ class AccessibleImage(AbstractImage):
 
         # Call the get_exif_data() method to extract Exif data after the image is saved
         if not self.has_exif:
-            exif_data = self.get_exif_data()
-            print(exif_data)
-
-        # Set the has_exif field based on whether Exif data was extracted
-        if exif_data is not None:
-            self.has_exif = True
-        else:
-            self.has_exif = False
-
-        # Save the image object again to update the has_exif field
-        super(AccessibleImage, self).save(*args, **kwargs)
+            self.get_exif_data()
 
 
 class AccessibleRendition(AbstractRendition):
