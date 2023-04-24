@@ -11,6 +11,7 @@ MEDIA_URL = '' if settings.S3_ENABLED else settings.WAGTAILADMIN_BASE_URL
 class ImageSerializer(serializers.ModelSerializer):
     alt_text = serializers.SerializerMethodField('get_alt_text')
     caption = serializers.SerializerMethodField('get_caption')
+    # Todo move exif data to endpoint, query as needed
     exif_data = serializers.SerializerMethodField('get_exif')
     large = serializers.SerializerMethodField('get_large_rendition')
     medium = serializers.SerializerMethodField('get_medium_rendition')
