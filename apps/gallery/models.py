@@ -14,6 +14,11 @@ class CollectionsLandingPage(BasePage):
     max_count = 1
     subpage_types = ['gallery.GalleryPage']
 
+class AlbumsLandingPage(BasePage):
+    """Page model for saving gallery collection pages"""
+    max_count = 1
+    subpage_types = ['gallery.GalleryPage']
+
 
 class GalleryPage(BasePage):
     """Page model for image gallery page"""
@@ -27,7 +32,7 @@ class GalleryPage(BasePage):
         blank=True,
     )
 
-    collection = models.ForeignKey(
+    image_collection = models.ForeignKey(
         Collection,
         on_delete=models.PROTECT,
         null=True,
@@ -38,12 +43,12 @@ class GalleryPage(BasePage):
     content_panels = BasePage.content_panels + [
         FieldPanel('intro'),
         FieldPanel('location'),
-        FieldPanel('collection'),
+        FieldPanel('image_collection'),
     ]
     api_fields = [
         APIField('intro'),
         APIField('location'),
-        APIField('collection', serializer=CollectionSerializer()),
+        APIField('image_collection', serializer=CollectionSerializer()),
     ]
 
     subpage_types = []

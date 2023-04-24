@@ -40,8 +40,6 @@ class AccessibleImage(AbstractImage):
                 self.has_exif = True
                 self.save()
 
-                print(f'💾 EXIF Data Saved \n {exif_data}')
-
         except IOError as e:
             print("Failed to open image: %s" % e)
 
