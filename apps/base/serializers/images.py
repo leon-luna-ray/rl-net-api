@@ -1,13 +1,29 @@
 from django.conf import settings
 from rest_framework import serializers
-from wagtail.images.models import Image
 from wagtail.images.blocks import ImageChooserBlock
-
+from wagtail.images.api.fields import ImageRenditionField
+from wagtail.models.collections import Collection
 from apps.base.models.images import AccessibleImage
 
 MEDIA_URL = '' if settings.S3_ENABLED else settings.WAGTAILADMIN_BASE_URL
 
-# Todo refactor for performance
+
+class ApiImageChooserBlock(ImageChooserBlock):
+    def get_api_representation(self, value, context=None):
+        if value and value is not None:
+            return ImageSerializer(value, context=context).to_representation(value)
+
+class CollectionSerializer(serializers.ModelSerializer):
+    # images = serializers.SerializerMethodField('get_images')
+
+    def get_images(self, obj):
+        print(obj)
+        return ImageRenditionField('fill-800x800').to_representation(obj.images.all())
+
+    class Meta:
+        model = Collection
+        fields = ['id', 'name',]
+
 class ImageSerializer(serializers.ModelSerializer):
     alt_text = serializers.SerializerMethodField('get_alt_text')
     caption = serializers.SerializerMethodField('get_caption')
@@ -16,26 +32,6 @@ class ImageSerializer(serializers.ModelSerializer):
     medium = serializers.SerializerMethodField('get_medium_rendition')
     original = serializers.SerializerMethodField('get_original_image')
     thumbnail = serializers.SerializerMethodField('get_thumbnail_rendition')
-
-    class Meta:
-        model = AccessibleImage
-        fields = (
-            'title',
-            'alt_text',
-            'caption',
-            "collection",
-            "exif_data",
-            'filename',
-            "focal_point_x",
-            "focal_point_y",
-            "focal_point_width",
-            "focal_point_height",
-            'id',
-            'large',
-            'medium',
-            'original',
-            'thumbnail',
-        )
 
     def get_alt_text(self, obj):
         try:
@@ -85,10 +81,33 @@ class ImageSerializer(serializers.ModelSerializer):
         except Exception:
             return ''
 
+    class Meta:
+        model = AccessibleImage
+        fields = (
+            'title',
+            'alt_text',
+            'caption',
+            "collection",
+            "exif_data",
+            'filename',
+            "focal_point_x",
+            "focal_point_y",
+            "focal_point_width",
+            "focal_point_height",
+            'id',
+            'large',
+            'medium',
+            'original',
+            'thumbnail',
+        )
 
+class CollectionSerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField('get_images')
 
+    def get_images(self, obj):
+        images = AccessibleImage.objects.filter(collection=obj)
+        return ImageSerializer(images, many=True).data
 
-class ApiImageChooserBlock(ImageChooserBlock):
-    def get_api_representation(self, value, context=None):
-        if value and value is not None:
-            return ImageSerializer(value, context=context).to_representation(value)
+    class Meta:
+        model = Collection
+        fields = ['id', 'name', 'images']
