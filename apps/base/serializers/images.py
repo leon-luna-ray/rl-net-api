@@ -8,22 +8,6 @@ from apps.base.models.images import AccessibleImage
 MEDIA_URL = '' if settings.S3_ENABLED else settings.WAGTAILADMIN_BASE_URL
 
 
-class ApiImageChooserBlock(ImageChooserBlock):
-    def get_api_representation(self, value, context=None):
-        if value and value is not None:
-            return ImageSerializer(value, context=context).to_representation(value)
-
-class CollectionSerializer(serializers.ModelSerializer):
-    # images = serializers.SerializerMethodField('get_images')
-
-    def get_images(self, obj):
-        print(obj)
-        return ImageRenditionField('fill-800x800').to_representation(obj.images.all())
-
-    class Meta:
-        model = Collection
-        fields = ['id', 'name',]
-
 class ImageSerializer(serializers.ModelSerializer):
     alt_text = serializers.SerializerMethodField('get_alt_text')
     caption = serializers.SerializerMethodField('get_caption')
@@ -100,6 +84,13 @@ class ImageSerializer(serializers.ModelSerializer):
             'original',
             'thumbnail',
         )
+
+
+class ApiImageChooserBlock(ImageChooserBlock):
+    def get_api_representation(self, value, context=None):
+        if value and value is not None:
+            return ImageSerializer(value, context=context).to_representation(value)
+
 
 class CollectionSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField('get_images')
