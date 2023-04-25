@@ -55,10 +55,8 @@ class AccessibleImage(AbstractImage):
         with self.file.open('rb') as f:
             image_data = f.read()
 
-        print('📡 Calling AWS Rekognition...')
-
         response = client.detect_labels(
-           Image={
+            Image={
                 'Bytes': io.BytesIO(image_data).read()
             }
         )
@@ -75,8 +73,6 @@ class AccessibleImage(AbstractImage):
             self.tags.add(*tag_objs)
             self.is_tagged = True
             self.save()
-
-            print('💾 Rekognition data saved!', tag_objs)
 
     def save(self, *args, **kwargs):
         super(AccessibleImage, self).save(*args, **kwargs)
