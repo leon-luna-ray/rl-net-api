@@ -1,11 +1,26 @@
 import io
 import json
 import boto3
+import logging
+
 from django.db import models
+from contextlib import contextmanager
 from taggit.models import Tag
 from wagtail.images.models import Image, AbstractImage, AbstractRendition
+
 from PIL import Image as PILImage, TiffImagePlugin
 from PIL.ExifTags import TAGS
+
+logger = logging.getLogger(__name__)
+
+# Define context manager for file access
+@contextmanager
+def open_file(file):
+    try:
+        f = file.open('rb')
+        yield f
+    finally:
+        f.close()
 
 
 class AccessibleImage(AbstractImage):
@@ -25,7 +40,7 @@ class AccessibleImage(AbstractImage):
     # Use Pillow to extract camera EXIF data and save to db.
     def get_exif_data(self):
         try:
-            with self.file.open('rb') as f:
+            with open_file(self.file) as f:
                 img = PILImage.open(f)
                 dct = {}
                 for k, v in img._getexif().items():
@@ -46,33 +61,37 @@ class AccessibleImage(AbstractImage):
                 self.save()
 
         except IOError as e:
-            print("Failed to open image: %s" % e)
+            logger.error("Failed to open image %d: %s", self.id, e)
 
     # Use AWS Rekognition to scan images and tag automatically
     def tag_image(self):
-        client = boto3.client('rekognition', region_name='us-west-2')
+        try:
+            client = boto3.client('rekognition', region_name='us-west-2')
 
-        with self.file.open('rb') as f:
-            image_data = f.read()
+            with open_file(self.file) as f:
+                image_data = f.read()
 
-        response = client.detect_labels(
-            Image={
-                'Bytes': io.BytesIO(image_data).read()
-            }
-        )
+            response = client.detect_labels(
+                Image={
+                    'Bytes': io.BytesIO(image_data).read()
+                }
+            )
 
-        if response:
-            tags = [label["Name"] for label in response["Labels"]]
+            if response:
+                tags = [label["Name"] for label in response["Labels"]]
 
-            tag_objs = []
-            for tag in tags:
-                tag_obj, created = Tag.objects.get_or_create(
-                    name=tag)
-                tag_objs.append(tag_obj)
+                tag_objs = []
+                for tag in tags:
+                    tag_obj, created = Tag.objects.get_or_create(
+                        name=tag)
+                    tag_objs.append(tag_obj)
 
-            self.tags.add(*tag_objs)
-            self.is_tagged = True
-            self.save()
+                self.tags.add(*tag_objs)
+                self.is_tagged = True
+                self.save()
+
+        except Exception as e:
+            logger.error(f"Failed to tag image with id {self.id}: {str(e)}")
 
     def save(self, *args, **kwargs):
         super(AccessibleImage, self).save(*args, **kwargs)
