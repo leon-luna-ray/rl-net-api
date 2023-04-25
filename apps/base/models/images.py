@@ -1,3 +1,4 @@
+import io
 import json
 import boto3
 from django.db import models
@@ -50,13 +51,15 @@ class AccessibleImage(AbstractImage):
     # Use AWS Rekognition to scan images and tag automatically
     def tag_image(self):
         client = boto3.client('rekognition', region_name='us-west-2')
-        image_data = self.file.read()
+
+        with self.file.open('rb') as f:
+            image_data = f.read()
 
         print('📡 Calling AWS Rekognition...')
 
         response = client.detect_labels(
-            Image={
-                'Bytes': image_data
+           Image={
+                'Bytes': io.BytesIO(image_data).read()
             }
         )
 
@@ -66,14 +69,14 @@ class AccessibleImage(AbstractImage):
             tag_objs = []
             for tag in tags:
                 tag_obj, created = Tag.objects.get_or_create(
-                    name=tag.strip('\"'))
+                    name=tag)
                 tag_objs.append(tag_obj)
 
             self.tags.add(*tag_objs)
             self.is_tagged = True
             self.save()
 
-            print('💾 Rekognition data saved!')
+            print('💾 Rekognition data saved!', tag_objs)
 
     def save(self, *args, **kwargs):
         super(AccessibleImage, self).save(*args, **kwargs)
