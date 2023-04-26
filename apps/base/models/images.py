@@ -79,7 +79,6 @@ class AccessibleImage(AbstractImage):
             )
 
             if response:
-                print(response)
                 tags = [label["Name"] for label in response["Labels"]]
 
                 tag_objs = []
