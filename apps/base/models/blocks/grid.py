@@ -5,8 +5,19 @@ from wagtail.blocks import (
 )
 from apps.base.serializers import ApiImageChooserBlock
 
+class LargeImageGridBlock(StructBlock):
+    title = CharBlock()
+    images = StreamBlock([
+        ('image', ApiImageChooserBlock())
+    ])
 
-class FeaturedImagesBlock(StructBlock):
+class SmallImageGridBlock(StructBlock):
+    title = CharBlock()
+    images = StreamBlock([
+        ('image', ApiImageChooserBlock())
+    ])
+
+class FilmstripImagesBlock(StructBlock):
     title = CharBlock()
     images = StreamBlock([
         ('image', ApiImageChooserBlock())
