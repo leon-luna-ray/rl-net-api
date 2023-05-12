@@ -14,8 +14,6 @@ class HomePage(BasePage):
         null=True,
         blank=True,
     )
-    text = models.CharField(max_length=255, null=True)
-
     intro = RichTextField(
         null=True,
         blank=True,
@@ -38,14 +36,12 @@ class HomePage(BasePage):
         FieldPanel('intro'),
         FieldPanel('hero_image'),
         FieldPanel('page_content'),
-        FieldPanel('text'),
     ]
     api_fields = [
         APIField('subtitle'),
         APIField('intro'),
         APIField('hero_image', serializer=ImageSerializer()),
         APIField('page_content'),
-        APIField('text'),
     ]
 
     max_count = 1

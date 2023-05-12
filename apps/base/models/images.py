@@ -14,6 +14,8 @@ from PIL.ExifTags import TAGS
 logger = logging.getLogger(__name__)
 
 # Define context manager for file access
+
+
 @contextmanager
 def open_file(file):
     try:
@@ -30,6 +32,7 @@ class AccessibleImage(AbstractImage):
     alt_text = models.TextField(blank=True)
     caption = models.TextField(blank=True)
     is_tagged = models.BooleanField(default=False)
+    labels = models.JSONField(default=dict)
     has_exif = models.BooleanField(blank=True, null=True)
     exif_data = models.JSONField(default=dict)
     admin_form_fields = Image.admin_form_fields + (
@@ -77,7 +80,7 @@ class AccessibleImage(AbstractImage):
                 }
             )
 
-            if response:
+            if "Labels" in response and isinstance(response["Labels"], list) and len(response["Labels"]) > 0:
                 tags = [label["Name"] for label in response["Labels"]]
 
                 tag_objs = []
@@ -86,6 +89,7 @@ class AccessibleImage(AbstractImage):
                         name=tag)
                     tag_objs.append(tag_obj)
 
+                self.labels = response
                 self.tags.add(*tag_objs)
                 self.is_tagged = True
                 self.save()
