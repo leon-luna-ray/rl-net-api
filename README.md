@@ -1,6 +1,11 @@
 # rl-net-api
-## 🚧 This project in in development 🚧
-CMS backend for rayluna.net built with Python, Django and Wagtail. This is a headless CMS application that serves data to the frontend via REST API.
+## 🚧 This project is in development 🚧
+CMS backend application for rayluna.net built with Python, Django and Wagtail. It is a headless CMS application that serves data to the frontend via REST API.
+
+### Key Features
+- Content updates with the Wagtail admin interface
+- Pull image EXIF data and save to db on upload
+- Scan images for content with AI 🤖
 
 ## rayluna.net projects
 - [https://rayluna.net/](https://rayluna.net/)
