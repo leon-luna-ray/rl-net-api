@@ -8,11 +8,18 @@ from wagtail.admin.panels import FieldPanel
 from apps.base.models.pages import BasePage
 from apps.base.serializers.images import CollectionSerializer
 
+GRID_SIZES = [
+    ('small', 'Small'),
+    ('medium', 'Medium'),
+    ('large', 'Large'),
+]
+
 
 class CollectionsLandingPage(BasePage):
     """Page model for saving gallery collection pages"""
     max_count = 1
     subpage_types = ['gallery.GalleryPage']
+
 
 class AlbumsLandingPage(BasePage):
     """Page model for saving gallery collection pages"""
@@ -40,15 +47,21 @@ class GalleryPage(BasePage):
         related_name='+',
     )
 
+    grid_size = models.CharField(
+        max_length=10, choices=GRID_SIZES, default='large')
+
     content_panels = BasePage.content_panels + [
         FieldPanel('intro'),
         FieldPanel('location'),
         FieldPanel('image_collection'),
+        FieldPanel('grid_size'),
     ]
     api_fields = [
         APIField('intro'),
         APIField('location'),
         APIField('image_collection', serializer=CollectionSerializer()),
+        APIField('grid_size'),
+
     ]
 
     subpage_types = []
