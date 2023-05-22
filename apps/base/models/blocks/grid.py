@@ -6,20 +6,6 @@ from wagtail.blocks import (
 )
 from apps.base.serializers import ApiImageChooserBlock
 
-# todo rm
-class LargeImageGridBlock(StructBlock):
-    title = CharBlock()
-    images = StreamBlock([
-        ('image', ApiImageChooserBlock())
-    ])
-# todo rm
-class SmallImageGridBlock(StructBlock):
-    title = CharBlock()
-    images = StreamBlock([
-        # Todo add choice to select collection as well.
-        ('image', ApiImageChooserBlock())
-    ])
-
 class ImageGridBlock(StructBlock):
     grid_sizes = [
         ('small', 'Small'),
