@@ -12,7 +12,7 @@ class ImageGridBlock(StructBlock):
         ('medium', 'Medium'),
         ('large', 'Large'),
     ]
-    title = CharBlock()
+    title = CharBlock(required=False)
     grid_size = ChoiceBlock(choices=grid_sizes, default='large')
     images = StreamBlock([
         ('image', ApiImageChooserBlock())
