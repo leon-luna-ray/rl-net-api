@@ -88,7 +88,7 @@ class AccessibleImage(AbstractImage):
     def tag_image(self):
         try:
             client = boto3.client('rekognition', region_name='us-west-2')
-
+            print('inside try block')
             with open_file(self.file) as f:
                 image_data = f.read()
 
@@ -102,6 +102,7 @@ class AccessibleImage(AbstractImage):
                 tags = [label["Name"] for label in response["Labels"]
                         if label["Confidence"] >= 90.0]
                 tag_objs = []
+                print(response)
                 for tag in tags:
                     tag_obj, created = Tag.objects.get_or_create(
                         name=tag)
