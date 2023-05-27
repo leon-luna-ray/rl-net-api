@@ -15,7 +15,7 @@ from PIL.ExifTags import TAGS
 
 logger = logging.getLogger(__name__)
 
-exif_data_keys = [
+EXIF_DATA_KEYS = (
     "Make",
     "Flash",
     "Model",
@@ -31,7 +31,14 @@ exif_data_keys = [
     "ISOSpeedRatings",
     "DateTimeOriginal",
     "ShutterSpeedValue",
-]
+)
+EXCLUDED_TAGS = (
+    'Accessories',
+    'Person',
+    'Photography',
+    'Clothing',
+    'Body Part'
+)
 
 
 @contextmanager
@@ -41,6 +48,14 @@ def open_file(file):
         yield f
     finally:
         f.close()
+
+
+rekognition_client = boto3.client(
+    'rekognition',
+    aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+    region_name='us-west-2'
+)
 
 
 class AccessibleImage(AbstractImage):
@@ -65,7 +80,7 @@ class AccessibleImage(AbstractImage):
                 img = PILImage.open(f)
                 dct = {}
                 for k, v in img._getexif().items():
-                    if k in TAGS and TAGS[k] in exif_data_keys:
+                    if k in TAGS and TAGS[k] in EXIF_DATA_KEYS:
                         if isinstance(v, TiffImagePlugin.IFDRational):
                             v = float(v)
                         elif isinstance(v, tuple):
@@ -86,33 +101,32 @@ class AccessibleImage(AbstractImage):
             logger.error("Failed to open image %d: %s", self.id, e)
 
     # Use AWS Rekognition to scan images and tag automatically
-    def tag_image(self):
+    def tag_image(self, rekognition_client):
         try:
-            client = boto3.client(
-                'rekognition',
-                aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-                aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-                region_name='us-west-2'
-            )
-
             with open_file(self.file) as f:
                 image_data = f.read()
 
-            response = client.detect_labels(
+            response = rekognition_client.detect_labels(
                 Image={
                     'Bytes': io.BytesIO(image_data).read()
                 }
             )
 
             if "Labels" in response and isinstance(response["Labels"], list) and len(response["Labels"]) > 0:
-                tags = [label["Name"] for label in response["Labels"]
-                        if label["Confidence"] >= 90.0]
+                tags = [
+                    label["Name"] for label in response["Labels"]
+                    # xx% confidence or above
+                    if label["Confidence"] >= 80.0
+                    # Exclude specific tags
+                    and label["Name"] not in EXCLUDED_TAGS
+                    # Exclude person tags
+                    and not any(parent["Name"] == "Person" for parent in label.get("Parents", []))
+                ]
+
                 tag_objs = []
-                print(response)
                 for tag in tags:
                     tag_obj, created = Tag.objects.get_or_create(
                         name=tag)
-
                     tag_objs.append(tag_obj)
 
                 self.labels = response
@@ -161,15 +175,16 @@ def process_image(image):
         image.get_exif_data()
 
     if not image.is_tagged:
-        image.tag_image()
+        image.tag_image(rekognition_client)
 
 
-def save_image_and_process(image):
-    image.save()
+def save_image_and_process(image, rekognition_client):
+    image.save(rekognition_client)
 
 
 if __name__ == '__main__':
     images = AccessibleImage.objects.all()
 
     with Pool(processes=cpu_count()) as pool:
-        pool.map(save_image_and_process, images)
+        pool.starmap(save_image_and_process, [
+                     (image, rekognition_client) for image in images])
