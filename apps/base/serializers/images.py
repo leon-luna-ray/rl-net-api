@@ -1,8 +1,8 @@
 from django.conf import settings
 from rest_framework import serializers
 from wagtail.images.blocks import ImageChooserBlock
-from wagtail.images.api.fields import ImageRenditionField
 from wagtail.models.collections import Collection
+from taggit.models import Tag
 from apps.base.models.images import AccessibleImage
 
 MEDIA_URL = '' if settings.S3_ENABLED else settings.WAGTAILADMIN_BASE_URL
@@ -16,6 +16,8 @@ class ImageSerializer(serializers.ModelSerializer):
     medium = serializers.SerializerMethodField('get_medium_rendition')
     original = serializers.SerializerMethodField('get_original_image')
     thumbnail = serializers.SerializerMethodField('get_thumbnail_rendition')
+    tags = serializers.SlugRelatedField(queryset=Tag.objects.all(), many=True, slug_field='name')
+
 
     def get_original_image(self, obj):
         try:
@@ -64,6 +66,7 @@ class ImageSerializer(serializers.ModelSerializer):
             'medium',
             'original',
             'thumbnail',
+            'tags',
         )
 
 
