@@ -15,7 +15,7 @@ class ImageSerializer(serializers.ModelSerializer):
     exif_data = serializers.SerializerMethodField('get_exif')
     large = serializers.SerializerMethodField('get_large_rendition')
     medium = serializers.SerializerMethodField('get_medium_rendition')
-    original = serializers.SerializerMethodField('get_original_image')
+    # original = serializers.SerializerMethodField('get_original_image')
     thumbnail = serializers.SerializerMethodField('get_thumbnail_rendition')
 
     def get_alt_text(self, obj):
