@@ -116,11 +116,11 @@ class AccessibleImage(AbstractImage):
                 tags = [
                     label["Name"] for label in response["Labels"]
                     # xx% confidence or above
-                    if label["Confidence"] >= 80.0
+                    if label["Confidence"] >= 70.0
                     # Exclude specific tags
                     and label["Name"] not in EXCLUDED_TAGS
-                    # Exclude person tags
-                    and not any(parent["Name"] == "Person" for parent in label.get("Parents", []))
+                    and not any(parent["Name"] == "Person Description" for parent in label.get("Categories", []))
+                    and not any(parent["Name"] == "Apparel and Accessories" for parent in label.get("Categories", []))
                 ]
 
                 tag_objs = []
