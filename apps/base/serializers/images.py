@@ -44,7 +44,7 @@ class ImageSerializer(serializers.ModelSerializer):
 
     def get_medium_rendition(self, obj):
         try:
-            rendition = f'{MEDIA_URL}{obj.get_rendition("width-800").url}'
+            rendition = f'{MEDIA_URL}{obj.get_rendition("width-600").url}'
 
             return rendition
         except Exception:
@@ -52,7 +52,7 @@ class ImageSerializer(serializers.ModelSerializer):
 
     def get_large_rendition(self, obj):
         try:
-            rendition = f'{MEDIA_URL}{obj.get_rendition("width-1200").url}'
+            rendition = f'{MEDIA_URL}{obj.get_rendition("width-1000").url}'
 
             return rendition
         except Exception:
@@ -74,15 +74,15 @@ class ImageSerializer(serializers.ModelSerializer):
             'caption',
             "collection",
             "exif_data",
-            'filename',
-            "focal_point_x",
-            "focal_point_y",
-            "focal_point_width",
-            "focal_point_height",
+            # 'filename',
+            # "focal_point_x",
+            # "focal_point_y",
+            # "focal_point_width",
+            # "focal_point_height",
             'id',
             'large',
             'medium',
-            'original',
+            # 'original',
             'thumbnail',
         )
 
