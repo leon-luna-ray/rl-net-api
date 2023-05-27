@@ -1,8 +1,8 @@
 from django.conf import settings
 from rest_framework import serializers
 from wagtail.images.blocks import ImageChooserBlock
-from wagtail.images.api.fields import ImageRenditionField
 from wagtail.models.collections import Collection
+from taggit.models import Tag
 from apps.base.models.images import AccessibleImage
 
 MEDIA_URL = '' if settings.S3_ENABLED else settings.WAGTAILADMIN_BASE_URL
@@ -16,6 +16,8 @@ class ImageSerializer(serializers.ModelSerializer):
     medium = serializers.SerializerMethodField('get_medium_rendition')
     original = serializers.SerializerMethodField('get_original_image')
     thumbnail = serializers.SerializerMethodField('get_thumbnail_rendition')
+    tags = serializers.SlugRelatedField(queryset=Tag.objects.all(), many=True, slug_field='name')
+
 
     def get_original_image(self, obj):
         try:
@@ -64,6 +66,7 @@ class ImageSerializer(serializers.ModelSerializer):
             'medium',
             'original',
             'thumbnail',
+            'tags',
         )
 
 
@@ -74,17 +77,18 @@ class ApiImageChooserBlock(ImageChooserBlock):
 
 
 class CollectionSerializer(serializers.ModelSerializer):
-    images = serializers.SerializerMethodField('get_images')
+    images = serializers.SerializerMethodField()
 
     def get_images(self, obj):
-        images = AccessibleImage.objects.filter(collection=obj).select_related('collection')
-        return ImageSerializer(images, many=True).data
+        images = AccessibleImage.objects.filter(collection=obj)
+        return ImageSerializer(images, many=True, context=self.context).data
 
     class Meta:
         model = Collection
         fields = ['id', 'name', 'images']
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['images'] = representation.pop('images', [])
+        return representation
 
-    class Meta:
-        model = Collection
-        fields = ['id', 'name', 'images']
