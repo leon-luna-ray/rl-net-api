@@ -9,32 +9,14 @@ MEDIA_URL = '' if settings.S3_ENABLED else settings.WAGTAILADMIN_BASE_URL
 
 
 class ImageSerializer(serializers.ModelSerializer):
-    alt_text = serializers.SerializerMethodField('get_alt_text')
-    caption = serializers.SerializerMethodField('get_caption')
+    alt_text = serializers.CharField(default='')
+    caption = serializers.CharField(default='')
     # Todo move exif data to endpoint, query as needed
-    exif_data = serializers.SerializerMethodField('get_exif')
+    exif_data = serializers.CharField(default='')
     large = serializers.SerializerMethodField('get_large_rendition')
     medium = serializers.SerializerMethodField('get_medium_rendition')
-    # original = serializers.SerializerMethodField('get_original_image')
+    original = serializers.SerializerMethodField('get_original_image')
     thumbnail = serializers.SerializerMethodField('get_thumbnail_rendition')
-
-    def get_alt_text(self, obj):
-        try:
-            return obj.alt_text
-        except Exception:
-            return ''
-
-    def get_caption(self, obj):
-        try:
-            return obj.caption
-        except Exception:
-            return ''
-
-    def get_exif(self, obj):
-        try:
-            return obj.exif_data if obj.has_exif else {}
-        except Exception:
-            return ''
 
     def get_original_image(self, obj):
         try:
@@ -74,7 +56,6 @@ class ImageSerializer(serializers.ModelSerializer):
             'caption',
             "collection",
             "exif_data",
-            # 'filename',
             # "focal_point_x",
             # "focal_point_y",
             # "focal_point_width",
@@ -82,7 +63,7 @@ class ImageSerializer(serializers.ModelSerializer):
             'id',
             'large',
             'medium',
-            # 'original',
+            'original',
             'thumbnail',
         )
 
@@ -96,9 +77,7 @@ class ApiImageChooserBlock(ImageChooserBlock):
 class CollectionSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField('get_images')
 
-    def get_images(self, obj):
-        images = AccessibleImage.objects.filter(collection=obj)
-        return ImageSerializer(images, many=True).data
+
 
     class Meta:
         model = Collection
