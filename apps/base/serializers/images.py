@@ -12,13 +12,10 @@ class ImageSerializer(serializers.ModelSerializer):
     alt_text = serializers.CharField(default='')
     caption = serializers.CharField(default='')
     exif_data = serializers.CharField(default='')
-    large = serializers.URLField(source='get_large_rendition', read_only=True)
-    medium = serializers.URLField(
-        source='get_medium_rendition', read_only=True)
-    original = serializers.URLField(
-        source='get_original_image', read_only=True)
-    thumbnail = serializers.URLField(
-        source='get_thumbnail_rendition', read_only=True)
+    large = serializers.SerializerMethodField('get_large_rendition')
+    medium = serializers.SerializerMethodField('get_medium_rendition')
+    original = serializers.SerializerMethodField('get_original_image')
+    thumbnail = serializers.SerializerMethodField('get_thumbnail_rendition')
 
     def get_original_image(self, obj):
         try:
@@ -91,3 +88,4 @@ class CollectionSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         representation['images'] = representation.pop('images', [])
         return representation
+
