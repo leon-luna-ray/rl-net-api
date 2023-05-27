@@ -179,7 +179,7 @@ def process_image(image):
 
 
 def save_image_and_process(image, rekognition_client):
-    image.save()
+    image.save(rekognition_client)
 
 
 if __name__ == '__main__':
