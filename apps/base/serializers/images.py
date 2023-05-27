@@ -12,10 +12,13 @@ class ImageSerializer(serializers.ModelSerializer):
     alt_text = serializers.CharField(default='')
     caption = serializers.CharField(default='')
     exif_data = serializers.CharField(default='')
-    large = serializers.SerializerMethodField('get_large_rendition')
-    medium = serializers.SerializerMethodField('get_medium_rendition')
-    original = serializers.SerializerMethodField('get_original_image')
-    thumbnail = serializers.SerializerMethodField('get_thumbnail_rendition')
+    large = serializers.URLField(source='get_large_rendition', read_only=True)
+    medium = serializers.URLField(
+        source='get_medium_rendition', read_only=True)
+    original = serializers.URLField(
+        source='get_original_image', read_only=True)
+    thumbnail = serializers.URLField(
+        source='get_thumbnail_rendition', read_only=True)
 
     def get_original_image(self, obj):
         try:
@@ -74,17 +77,13 @@ class ApiImageChooserBlock(ImageChooserBlock):
 
 
 class CollectionSerializer(serializers.ModelSerializer):
-    images = serializers.SerializerMethodField('get_images')
-
-    def get_images(self, obj):
-        images = AccessibleImage.objects.filter(collection=obj).select_related('collection')
-        return ImageSerializer(images, many=True).data
+    images = ImageSerializer(many=True, read_only=True)
 
     class Meta:
         model = Collection
         fields = ['id', 'name', 'images']
 
-
-    class Meta:
-        model = Collection
-        fields = ['id', 'name', 'images']
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['images'] = representation.pop('images', [])
+        return representation
