@@ -81,18 +81,20 @@ class AccessibleImage(AbstractImage):
             )
 
             if "Labels" in response and isinstance(response["Labels"], list) and len(response["Labels"]) > 0:
-                tags = [label["Name"] for label in response["Labels"]]
-
+                tags = [label["Name"] for label in response["Labels"] if label["Confidence"] >= 90.0]
+                print(response)
                 tag_objs = []
                 for tag in tags:
                     tag_obj, created = Tag.objects.get_or_create(
                         name=tag)
+
                     tag_objs.append(tag_obj)
 
                 self.labels = response
                 self.tags.add(*tag_objs)
                 self.is_tagged = True
                 self.save()
+
 
         except Exception as e:
             logger.error(f"Failed to tag image with id {self.id}: {str(e)}")
