@@ -77,6 +77,9 @@ class ApiImageChooserBlock(ImageChooserBlock):
 class CollectionSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField('get_images')
 
+    def get_images(self, obj):
+        images = AccessibleImage.objects.filter(collection=obj)
+        return ImageSerializer(images, many=True).data
 
 
     class Meta:
