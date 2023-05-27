@@ -1,9 +1,7 @@
 import io
-import os
 import json
 import boto3
 import logging
-from dotenv import load_dotenv
 from django.conf import settings
 
 from multiprocessing import Pool, cpu_count
@@ -15,7 +13,6 @@ from wagtail.images.models import Image, AbstractImage, AbstractRendition
 from PIL import Image as PILImage, TiffImagePlugin
 from PIL.ExifTags import TAGS
 
-load_dotenv('.env')
 logger = logging.getLogger(__name__)
 
 exif_data_keys = [
