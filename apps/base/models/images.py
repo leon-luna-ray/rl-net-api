@@ -82,7 +82,6 @@ class AccessibleImage(AbstractImage):
 
             if "Labels" in response and isinstance(response["Labels"], list) and len(response["Labels"]) > 0:
                 tags = [label["Name"] for label in response["Labels"] if label["Confidence"] >= 90.0]
-                print(response)
                 tag_objs = []
                 for tag in tags:
                     tag_obj, created = Tag.objects.get_or_create(
