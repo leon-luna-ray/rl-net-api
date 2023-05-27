@@ -87,6 +87,8 @@ class AccessibleImage(AbstractImage):
 
     # Use AWS Rekognition to scan images and tag automatically
     def tag_image(self):
+        excluded_tags = ('Accessories', 'Person', 'Photography', 'Clothing',)
+
         try:
             client = boto3.client(
                 'rekognition',
@@ -105,14 +107,20 @@ class AccessibleImage(AbstractImage):
             )
 
             if "Labels" in response and isinstance(response["Labels"], list) and len(response["Labels"]) > 0:
-                tags = [label["Name"] for label in response["Labels"]
-                        if label["Confidence"] >= 90.0]
+                tags = [
+                    label["Name"] for label in response["Labels"]
+                    # xx% confidence or above
+                    if label["Confidence"] >= 80.0
+                    # Exclude specific tags
+                    and label["Name"] not in excluded_tags
+                    # Exclude person tags
+                    and not any(parent["Name"] == "Person" for parent in label.get("Parents", []))
+                ]
+
                 tag_objs = []
-                print(response)
                 for tag in tags:
                     tag_obj, created = Tag.objects.get_or_create(
                         name=tag)
-
                     tag_objs.append(tag_obj)
 
                 self.labels = response
