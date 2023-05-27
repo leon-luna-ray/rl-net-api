@@ -78,8 +78,12 @@ class CollectionSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField('get_images')
 
     def get_images(self, obj):
-        images = AccessibleImage.objects.filter(collection=obj)
+        images = AccessibleImage.objects.filter(collection=obj).select_related('collection')
         return ImageSerializer(images, many=True).data
+
+    class Meta:
+        model = Collection
+        fields = ['id', 'name', 'images']
 
 
     class Meta:
