@@ -58,6 +58,18 @@ rekognition_client = boto3.client(
 )
 
 
+def process_image(image):
+    if not image.has_exif:
+        image.get_exif_data()
+
+    if not image.is_tagged:
+        image.tag_image(rekognition_client)
+
+
+def save_image_and_process(image, rekognition_client):
+    image.save(rekognition_client)
+
+
 class AccessibleImage(AbstractImage):
     """
     Extends the wagtail image model to allow for caption, alt text, extract EXIF data and scan image and tag with AI.
@@ -137,13 +149,6 @@ class AccessibleImage(AbstractImage):
         except Exception as e:
             logger.error(f"Failed to tag image with id {self.id}: {str(e)}")
 
-    def process_image(self):
-        if not self.has_exif:
-            self.get_exif_data()
-
-        if not self.is_tagged:
-            self.tag_image()
-
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
@@ -167,21 +172,8 @@ class AccessibleRendition(AbstractRendition):
             ('image', 'filter_spec', 'focal_point_key'),
         )
 
+
 # Multiprocessing
-
-
-def process_image(image):
-    if not image.has_exif:
-        image.get_exif_data()
-
-    if not image.is_tagged:
-        image.tag_image(rekognition_client)
-
-
-def save_image_and_process(image, rekognition_client):
-    image.save(rekognition_client)
-
-
 if __name__ == '__main__':
     images = AccessibleImage.objects.all()
 
