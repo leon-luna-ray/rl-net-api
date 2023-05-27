@@ -13,7 +13,23 @@ from PIL.ExifTags import TAGS
 
 logger = logging.getLogger(__name__)
 
-# Define context manager for file access
+exif_data_keys = [
+    "Make",
+    "Flash",
+    "Model",
+    "Artist",
+    "FNumber",
+    "DateTime",
+    "LensMake",
+    "Software",
+    "Copyright",
+    "LensModel",
+    "FocalLength",
+    "ExposureTime",
+    "ISOSpeedRatings",
+    "DateTimeOriginal",
+    "ShutterSpeedValue",
+]
 
 
 @contextmanager
@@ -47,12 +63,13 @@ class AccessibleImage(AbstractImage):
                 img = PILImage.open(f)
                 dct = {}
                 for k, v in img._getexif().items():
-                    if k in TAGS:
+                    if k in TAGS and TAGS[k] in exif_data_keys:
                         if isinstance(v, TiffImagePlugin.IFDRational):
                             v = float(v)
                         elif isinstance(v, tuple):
-                            v = tuple(float(t) if isinstance(
-                                t, TiffImagePlugin.IFDRational) else t for t in v)
+                            v = tuple(
+                                float(t) if isinstance(t, TiffImagePlugin.IFDRational) else t for t in v
+                            )
                         elif isinstance(v, bytes):
                             v = v.decode(errors="replace")
                         dct[TAGS[k]] = v
@@ -81,7 +98,8 @@ class AccessibleImage(AbstractImage):
             )
 
             if "Labels" in response and isinstance(response["Labels"], list) and len(response["Labels"]) > 0:
-                tags = [label["Name"] for label in response["Labels"] if label["Confidence"] >= 90.0]
+                tags = [label["Name"] for label in response["Labels"]
+                        if label["Confidence"] >= 90.0]
                 tag_objs = []
                 for tag in tags:
                     tag_obj, created = Tag.objects.get_or_create(
@@ -93,7 +111,6 @@ class AccessibleImage(AbstractImage):
                 self.tags.add(*tag_objs)
                 self.is_tagged = True
                 self.save()
-
 
         except Exception as e:
             logger.error(f"Failed to tag image with id {self.id}: {str(e)}")
