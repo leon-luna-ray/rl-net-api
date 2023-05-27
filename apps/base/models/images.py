@@ -1,7 +1,10 @@
 import io
+import os
 import json
 import boto3
 import logging
+from dotenv import load_dotenv
+from django.conf import settings
 
 from multiprocessing import Pool, cpu_count
 from django.db import models
@@ -12,6 +15,7 @@ from wagtail.images.models import Image, AbstractImage, AbstractRendition
 from PIL import Image as PILImage, TiffImagePlugin
 from PIL.ExifTags import TAGS
 
+load_dotenv('.env')
 logger = logging.getLogger(__name__)
 
 exif_data_keys = [
@@ -87,8 +91,13 @@ class AccessibleImage(AbstractImage):
     # Use AWS Rekognition to scan images and tag automatically
     def tag_image(self):
         try:
-            client = boto3.client('rekognition', region_name='us-west-2')
-            print('inside try block')
+            client = boto3.client(
+                'rekognition',
+                aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+                region_name='us-west-2'
+            )
+
             with open_file(self.file) as f:
                 image_data = f.read()
 
@@ -148,6 +157,8 @@ class AccessibleRendition(AbstractRendition):
         )
 
 # Multiprocessing
+
+
 def process_image(image):
     if not image.has_exif:
         image.get_exif_data()
