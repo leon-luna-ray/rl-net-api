@@ -3,6 +3,7 @@ import json
 import boto3
 import logging
 
+from multiprocessing import Pool, cpu_count
 from django.db import models
 from contextlib import contextmanager
 from taggit.models import Tag
@@ -115,14 +116,18 @@ class AccessibleImage(AbstractImage):
         except Exception as e:
             logger.error(f"Failed to tag image with id {self.id}: {str(e)}")
 
-    def save(self, *args, **kwargs):
-        super(AccessibleImage, self).save(*args, **kwargs)
-
+    def process_image(self):
         if not self.has_exif:
             self.get_exif_data()
 
         if not self.is_tagged:
             self.tag_image()
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if not self.has_exif or not self.is_tagged:
+            process_image(self)
 
 
 class AccessibleRendition(AbstractRendition):
@@ -140,3 +145,22 @@ class AccessibleRendition(AbstractRendition):
         unique_together = (
             ('image', 'filter_spec', 'focal_point_key'),
         )
+
+# Multiprocessing
+def process_image(image):
+    if not image.has_exif:
+        image.get_exif_data()
+
+    if not image.is_tagged:
+        image.tag_image()
+
+
+def save_image_and_process(image):
+    image.save()
+
+
+if __name__ == '__main__':
+    images = AccessibleImage.objects.all()
+
+    with Pool(processes=cpu_count()) as pool:
+        pool.map(save_image_and_process, images)
