@@ -1,6 +1,4 @@
 from django.conf import settings
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 
 from rest_framework import serializers
 from wagtail.images.views.serve import generate_signature
@@ -11,10 +9,6 @@ from apps.base.models.images import AccessibleImage, AccessibleRendition
 
 MEDIA_URL = '' if settings.S3_ENABLED else settings.WAGTAILADMIN_BASE_URL
 
-@receiver(post_save, sender=AccessibleImage)
-def create_renditions(sender, instance, created, **kwargs):
-    if created:
-        instance.create_renditions()
 
 class ImageSerializer(serializers.ModelSerializer):
     alt_text = serializers.CharField(default='')
@@ -26,16 +20,22 @@ class ImageSerializer(serializers.ModelSerializer):
     renditions = serializers.SerializerMethodField()
 
     def get_renditions(self, obj):
+        media_url = settings.MEDIA_URL
+
+        rendition_sizes = {
+            "large": "max-1200x1200",
+            "medium": "max-800x800",
+            "thumbnail": "fill-400x400"
+        }
+
         renditions = {}
-        for filter_spec in ['max-1200x1200', 'max-800x800', 'fill-400x400']:
+
+        for key, filter_spec in rendition_sizes.items():
             rendition = obj.get_rendition(filter_spec)
             if rendition:
-                rendition_url = rendition.url
-                rendition_signature = generate_signature(rendition_url, filter_spec)
-                renditions[filter_spec] = {
-                    'url': rendition_url,
-                    'signature': rendition_signature
-                }
+                rendition_url = f"{MEDIA_URL}{rendition.url}"
+                renditions[key] = rendition_url
+
         return renditions
 
     def get_original_image(self, obj):

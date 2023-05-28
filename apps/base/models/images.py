@@ -3,6 +3,8 @@ import json
 import boto3
 import logging
 from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 from multiprocessing import Pool, cpu_count
 from django.db import models
@@ -156,12 +158,17 @@ class AccessibleImage(AbstractImage):
                 rendition = self.get_rendition(filter_spec)
                 rendition.save()
 
-
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
         if not self.has_exif or not self.is_tagged:
             process_image(self)
+
+
+@receiver(post_save, sender=AccessibleImage)
+def create_renditions(sender, instance, created, **kwargs):
+    if created:
+        instance.create_renditions()
 
 
 class AccessibleRendition(AbstractRendition):
