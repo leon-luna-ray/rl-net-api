@@ -149,6 +149,14 @@ class AccessibleImage(AbstractImage):
         except Exception as e:
             logger.error(f"Failed to tag image with id {self.id}: {str(e)}")
 
+    def create_renditions(self):
+        for filter_spec in ['max-1200x1200', 'max-800x800', 'fill-400x400']:
+            rendition = self.get_rendition(filter_spec)
+            if rendition is None:
+                rendition = self.get_rendition(filter_spec)
+                rendition.save()
+
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
