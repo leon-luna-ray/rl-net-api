@@ -1,11 +1,10 @@
 from django.conf import settings
 
 from rest_framework import serializers
-from wagtail.images.views.serve import generate_signature
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.models.collections import Collection
 from taggit.models import Tag
-from apps.base.models.images import AccessibleImage, AccessibleRendition
+from apps.base.models.images import AccessibleImage
 
 MEDIA_URL = '' if settings.S3_ENABLED else settings.WAGTAILADMIN_BASE_URL
 
@@ -20,8 +19,6 @@ class ImageSerializer(serializers.ModelSerializer):
     renditions = serializers.SerializerMethodField()
 
     def get_renditions(self, obj):
-        media_url = settings.MEDIA_URL
-
         rendition_sizes = {
             "large": "max-1200x1200",
             "medium": "max-800x800",
