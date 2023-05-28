@@ -3,6 +3,8 @@ import json
 import boto3
 import logging
 from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 from multiprocessing import Pool, cpu_count
 from django.db import models
@@ -128,7 +130,7 @@ class AccessibleImage(AbstractImage):
                 tags = [
                     label["Name"] for label in response["Labels"]
                     # xx% confidence or above
-                    if label["Confidence"] >= 70.0
+                    if label["Confidence"] >= 80.0
                     # Exclude specific tags
                     and label["Name"] not in EXCLUDED_TAGS
                     and not any(parent["Name"] == "Person Description" for parent in label.get("Categories", []))
@@ -149,11 +151,24 @@ class AccessibleImage(AbstractImage):
         except Exception as e:
             logger.error(f"Failed to tag image with id {self.id}: {str(e)}")
 
+    def create_renditions(self):
+        for filter_spec in ['max-1200x1200', 'max-800x800', 'fill-400x400']:
+            rendition = self.get_rendition(filter_spec)
+            if rendition is None:
+                rendition = self.get_rendition(filter_spec)
+                rendition.save()
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
         if not self.has_exif or not self.is_tagged:
             process_image(self)
+
+
+@receiver(post_save, sender=AccessibleImage)
+def create_renditions(sender, instance, created, **kwargs):
+    if created:
+        instance.create_renditions()
 
 
 class AccessibleRendition(AbstractRendition):
