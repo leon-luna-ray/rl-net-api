@@ -127,10 +127,14 @@ class AccessibleImage(AbstractImage):
             )
 
             if "Labels" in response and isinstance(response["Labels"], list) and len(response["Labels"]) > 0:
+                labels = response["Labels"]
+                # Sort labels by confidence score in descending order
+                labels.sort(key=lambda x: x["Confidence"], reverse=True)
+
                 tags = [
-                    label["Name"] for label in response["Labels"]
+                    label["Name"] for label in labels
                     # xx% confidence or above
-                    if label["Confidence"] >= 90.0
+                    if label["Confidence"] >= 75.0
                     # Exclude specific tags
                     and label["Name"] not in EXCLUDED_TAGS
                     and not any(parent["Name"] == "Person Description" for parent in label.get("Categories", []))
