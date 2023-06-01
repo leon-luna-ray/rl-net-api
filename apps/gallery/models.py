@@ -4,8 +4,7 @@ from wagtail.api import APIField
 from wagtail.fields import RichTextField
 from wagtail.models.collections import Collection
 from wagtail.admin.panels import FieldPanel
-from wagtail.core.fields import StreamField
-from wagtail.images.blocks import ImageChooserBlock
+from wagtail.fields import StreamField
 
 from apps.base.models.pages import BasePage
 from apps.base.serializers.images import CollectionSerializer, ApiImageChooserBlock
@@ -44,6 +43,7 @@ class AlbumDetailPage(BasePage):
         min_num=1,
         null=True,
         blank=False,
+        use_json_field=True,
     )
 
     intro = RichTextField(
