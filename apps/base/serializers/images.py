@@ -20,8 +20,8 @@ class ImageSerializer(serializers.ModelSerializer):
 
     def get_renditions(self, obj):
         rendition_sizes = {
-            "large": "max-1200x1200",
-            "medium": "max-800x800",
+            "large": "max-1000x1000",
+            "medium": "max-600x600",
             "thumbnail": "fill-400x400"
         }
 
