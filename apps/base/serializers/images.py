@@ -62,7 +62,16 @@ class ImageSerializer(serializers.ModelSerializer):
 class ApiImageChooserBlock(ImageChooserBlock):
     def get_api_representation(self, value, context=None):
         if value and value is not None:
-            return ImageSerializer(value, context=context).to_representation(value)
+            serializer = ImageSerializer(value, context=context)
+            representation = serializer.to_representation(value)
+            representation['exif_data'] = value.exif_data
+            representation['caption'] = value.caption
+            representation['alt_text'] = value.alt_text
+            representation['tags'] = [tag.name for tag in value.tags.all()]
+            return representation
+        return None
+
+
 
 
 class CollectionSerializer(serializers.ModelSerializer):

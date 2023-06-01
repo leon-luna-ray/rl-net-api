@@ -4,9 +4,11 @@ from wagtail.api import APIField
 from wagtail.fields import RichTextField
 from wagtail.models.collections import Collection
 from wagtail.admin.panels import FieldPanel
+from wagtail.core.fields import StreamField
+from wagtail.images.blocks import ImageChooserBlock
 
 from apps.base.models.pages import BasePage
-from apps.base.serializers.images import CollectionSerializer
+from apps.base.serializers.images import CollectionSerializer, ApiImageChooserBlock
 
 GRID_SIZES = [
     ('small', 'Small'),
@@ -35,10 +37,20 @@ class AlbumDetailPage(BasePage):
         help_text="Check this box if the album is public."
     )
 
+    hero_images = StreamField(
+        [
+            ('image', ApiImageChooserBlock(required=True)),
+        ],
+        min_num=1,
+        null=True,
+        blank=False,
+    )
+
     intro = RichTextField(
         null=True,
         blank=True,
     )
+
     location = models.CharField(
         max_length=255,
         null=True,
@@ -58,6 +70,7 @@ class AlbumDetailPage(BasePage):
 
     content_panels = BasePage.content_panels + [
         FieldPanel('is_public'),
+        FieldPanel('hero_images'),
         FieldPanel('intro'),
         FieldPanel('location'),
         FieldPanel('image_collection'),
@@ -65,11 +78,11 @@ class AlbumDetailPage(BasePage):
     ]
     api_fields = [
         APIField('is_public'),
+        APIField('hero_images'),
         APIField('intro'),
         APIField('location'),
         APIField('image_collection', serializer=CollectionSerializer()),
         APIField('grid_size'),
-
     ]
 
     subpage_types = []
