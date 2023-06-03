@@ -33,7 +33,7 @@ class ImageSerializer(serializers.ModelSerializer):
         for key, filter_spec in rendition_sizes.items():
             rendition = obj.get_rendition(filter_spec)
             if rendition:
-                rendition_url = self.get_image_url(rendition.url)
+                rendition_url = rendition.url
                 renditions[key] = rendition_url
 
         return renditions
