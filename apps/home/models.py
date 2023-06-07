@@ -7,6 +7,7 @@ from wagtail.admin.panels import FieldPanel
 from apps.base.serializers import ImageSerializer
 from apps.base.models.pages import BasePage
 from apps.base.models.blocks.content import HomePageContentBlock
+from apps.base.serializers.images import ApiImageChooserBlock
 
 class HomePage(BasePage):
     subtitle = models.CharField(
@@ -18,12 +19,13 @@ class HomePage(BasePage):
         null=True,
         blank=True,
     )
-    hero_image = models.ForeignKey(
-        'base.AccessibleImage',
+    hero_images = StreamField(
+        [
+            ('image', ApiImageChooserBlock(required=False)),
+        ],
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
-        related_name='+'
+        use_json_field=True,
     )
     page_content = StreamField(
         HomePageContentBlock(),
@@ -34,13 +36,13 @@ class HomePage(BasePage):
     content_panels = BasePage.content_panels + [
         FieldPanel('subtitle'),
         FieldPanel('intro'),
-        FieldPanel('hero_image'),
+        FieldPanel('hero_images'),
         FieldPanel('page_content'),
     ]
     api_fields = [
         APIField('subtitle'),
         APIField('intro'),
-        APIField('hero_image', serializer=ImageSerializer()),
+        APIField('hero_images'),
         APIField('page_content'),
     ]
 
