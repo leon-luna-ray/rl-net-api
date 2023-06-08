@@ -4,7 +4,6 @@ from wagtail.api import APIField
 from wagtail.fields import RichTextField, StreamField
 from wagtail.admin.panels import FieldPanel
 
-from apps.base.serializers import ImageSerializer
 from apps.base.models.pages import BasePage
 from apps.base.models.blocks.content import HomePageContentBlock
 from apps.base.models.blocks.tout import HeroImageBlock
