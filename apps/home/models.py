@@ -7,7 +7,7 @@ from wagtail.admin.panels import FieldPanel
 from apps.base.serializers import ImageSerializer
 from apps.base.models.pages import BasePage
 from apps.base.models.blocks.content import HomePageContentBlock
-from apps.base.serializers.images import ApiImageChooserBlock
+from apps.base.models.blocks.tout import HeroImageBlock
 
 class HomePage(BasePage):
     subtitle = models.CharField(
@@ -21,7 +21,7 @@ class HomePage(BasePage):
     )
     hero_images = StreamField(
         [
-            ('image', ApiImageChooserBlock(required=False)),
+            ('hero_image', HeroImageBlock(required=False)),
         ],
         null=True,
         blank=True,
