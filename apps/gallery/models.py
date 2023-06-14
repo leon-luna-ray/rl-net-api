@@ -8,6 +8,7 @@ from wagtail.fields import StreamField
 
 from apps.base.models.pages import BasePage
 from apps.base.serializers.images import CollectionSerializer, ApiImageChooserBlock
+from apps.base.models.blocks.content import PageContentBlock
 
 GRID_SIZES = [
     ('small', 'Small'),
@@ -19,8 +20,45 @@ GRID_SIZES = [
 class CollectionsLandingPage(BasePage):
     """Page model for saving gallery collection pages"""
     max_count = 1
-    # subpage_types = ['gallery.GalleryPage']
+    subpage_types = ['gallery.CollectionDetailPage']
 
+
+class CollectionDetailPage(BasePage):
+    """Page model for collection detail page"""
+
+    hero_images = StreamField(
+        [
+            ('image', ApiImageChooserBlock(required=True)),
+        ],
+        min_num=1,
+        null=True,
+        blank=False,
+        use_json_field=True,
+    )
+
+    intro = RichTextField(
+        null=True,
+        blank=True,
+    )
+
+    page_content = StreamField(
+        PageContentBlock(),
+        null=True,
+        use_json_field=True,
+    )
+
+    content_panels = BasePage.content_panels + [
+        FieldPanel('hero_images'),
+        FieldPanel('intro'),
+        FieldPanel('page_content'),
+    ]
+    api_fields = [
+        APIField('hero_images'),
+        APIField('intro'),
+        APIField('page_content'),
+    ]
+
+    subpage_types = []
 
 class AlbumsLandingPage(BasePage):
     """Page model for saving gallery collection pages"""
@@ -66,7 +104,16 @@ class AlbumDetailPage(BasePage):
     )
 
     grid_size = models.CharField(
-        max_length=10, choices=GRID_SIZES, default='large')
+        max_length=10,
+        choices=GRID_SIZES,
+        default='large'
+    )
+
+    page_content = StreamField(
+        PageContentBlock(),
+        null=True,
+        use_json_field=True,
+    )
 
     content_panels = BasePage.content_panels + [
         FieldPanel('is_public'),
@@ -75,6 +122,7 @@ class AlbumDetailPage(BasePage):
         FieldPanel('location'),
         FieldPanel('image_collection'),
         FieldPanel('grid_size'),
+        FieldPanel('page_content'),
     ]
     api_fields = [
         APIField('is_public'),
@@ -83,6 +131,7 @@ class AlbumDetailPage(BasePage):
         APIField('location'),
         APIField('image_collection', serializer=CollectionSerializer()),
         APIField('grid_size'),
+        APIField('page_content'),
     ]
 
     subpage_types = []
