@@ -5,7 +5,7 @@ from wagtail.fields import RichTextField, StreamField
 from wagtail.admin.panels import FieldPanel
 
 from apps.base.models.pages import BasePage
-from apps.base.models.blocks.content import HomePageContentBlock
+from apps.base.models.blocks.content import PageContentBlock
 from apps.base.models.blocks.tout import HeroImageBlock
 
 class HomePage(BasePage):
@@ -27,7 +27,7 @@ class HomePage(BasePage):
         use_json_field=True,
     )
     page_content = StreamField(
-        HomePageContentBlock(),
+        PageContentBlock(),
         null=True,
         use_json_field=True,
     )

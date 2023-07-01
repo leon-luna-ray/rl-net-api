@@ -1,22 +1,20 @@
-from wagtail.core.blocks import (
-    CharBlock,
+from wagtail.blocks import (
     StreamBlock,
     StructBlock,
     URLBlock,
 )
 
-from .api import ApiPageChooserBlock
+from apps.base.serializers.pages import ApiPageChooserBlock
 
 
-class LinkWithTitleBlock(StructBlock):
-    title = CharBlock()
+class LinkBlock(StructBlock):
     link = StreamBlock(
         [
-            ('page_link', ApiPageChooserBlock(
+            ('page', ApiPageChooserBlock(
                 required=False,
                 icon='home',
             )),
-            ('external_link', URLBlock(
+            ('url', URLBlock(
                 required=False,
                 icon='link',
             )),

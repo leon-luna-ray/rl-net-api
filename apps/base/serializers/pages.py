@@ -2,8 +2,8 @@ from rest_framework import serializers
 from rest_framework.response import Response
 from wagtail.api.v2.views import PagesAPIViewSet
 from wagtail.api.v2.serializers import PageSerializer
-from wagtail.core.models import Page
-
+from wagtail.models import Page
+from wagtail.blocks import PageChooserBlock
 
 class BasePageSerializer(PageSerializer):
     preview_thumbnail = serializers.SerializerMethodField()
@@ -35,3 +35,16 @@ class BasePageDetailView(PagesAPIViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
+
+def _serializePage(value):
+    return {
+            "slug": value.slug,
+            "title": value.title,
+            "path": value.get_url(),
+        }
+
+class ApiPageChooserBlock(PageChooserBlock):
+    def get_api_representation(self, value, context=None):
+        if value:
+            return _serializePage(value)
